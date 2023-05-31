@@ -1,0 +1,157 @@
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="initial-scale=1,maximum-scale=1,user-scalable=no"
+    />
+    <title>
+      Edit features with the Editor widget | Sample | ArcGIS Maps SDK for
+      JavaScript 4.26
+    </title>
+
+    <link
+      rel="stylesheet"
+      href="https://js.arcgis.com/4.26/esri/themes/light/main.css"
+    />
+    <script src="https://js.arcgis.com/4.26/"></script>
+
+    <style>
+      html,
+      body,
+      #viewDiv {
+        padding: 0;
+        margin: 0;
+        height: 100%;
+        width: 100%;
+      }
+    </style>
+
+    <script>
+      require(["esri/WebMap", "esri/views/MapView", "esri/widgets/Editor"], (
+        WebMap,
+        MapView,
+        Editor
+      ) => {
+        let pointLayer, lineLayer, polygonLayer;
+
+        // Create a map from the referenced webmap item id
+        const webmap = new WebMap({
+          portalItem: {
+            id: "d3b05bb55c1e45efab4d3c0a104faffa"
+          }
+        });
+
+        const view = new MapView({
+          container: "viewDiv",
+          map: webmap
+        });
+
+        view.when(() => {
+          view.map.loadAll().then(() => {
+            view.map.editableLayers.forEach((layer) => {
+              if (layer.type === "feature") {
+                switch (layer.geometryType) {
+                  case "polygon":
+                    polygonLayer = layer;
+                    break;
+                  case "polyline":
+                    lineLayer = layer;
+                    break;
+                  case "point":
+                    pointLayer = layer;
+                    break;
+                }
+              }
+            });
+
+            // Create layerInfos for layers in Editor. This
+            // sets the fields for editing.
+
+            const pointInfos = {
+              layer: pointLayer,
+              formTemplate: {
+                // autocasts to FormTemplate
+                elements: [
+                  {
+                    // autocasts to Field Elements
+                    type: "field",
+                    fieldName: "Comments",
+                    label: "Comments"
+                  },
+                  {
+                    type: "field",
+                    fieldName: "SeasonHarvest",
+                    label: "Season of Harvest"
+                  },
+                  {
+                    type: "field",
+                    fieldName: "site_wet",
+                    label: "Site Wetness"
+                  },
+                  {
+                    type: "field",
+                    fieldName: "moistRank",
+                    label: "Moisture Rank"
+                  },
+                ]
+              }
+            };
+
+            const lineInfos = {
+              layer: lineLayer,
+              formTemplate: {
+                // autocasts to FormTemplate
+                elements: [
+                  {
+                    // autocasts to FieldElement
+                    type: "field",
+                    fieldName: "comments",
+                    label: "Comments"
+                  },
+                ]
+              }
+            };
+
+            const polyInfos = {
+              layer: polygonLayer,
+              formTemplate: {
+                // autocasts to FormTemplate
+                elements: [
+                  {
+                    // autocasts to FieldElement
+                    type: "field",
+                    fieldName: "incidenttype",
+                    label: "Incident Type"
+                  },
+                  {
+                    type: "field",
+                    fieldName: "activeincid",
+                    label: "Active"
+                  },
+                  {
+                    type: "field",
+                    fieldName: "descrip",
+                    label: "Description"
+                  }
+                ]
+              }
+            };
+
+            const editor = new Editor({
+              view: view,
+              layerInfos: [pointInfos, lineInfos, polyInfos]
+            });
+
+            // Add the widget to the view
+            view.ui.add(editor, "top-right");
+          });
+        });
+      });
+    </script>
+  </head>
+
+  <body>
+    <div id="viewDiv"></div>
+  </body>
+</html>
